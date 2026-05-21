@@ -1,0 +1,535 @@
+INSERT INTO TrafficViolations (VehicleID, OfficerID, ViolationID, ViolationDateTime, Location, IsPaid) VALUES
+(1, 1, 1, '2025-02-10 14:30:00', 'Москва, ул. Тверская', 1),
+(2, 3, 3, '2025-02-11 09:15:00', 'Санкт-Петербург, Невский пр.', 0),
+(3, 2, 2, '2025-02-12 22:45:00', 'Москва, МКАД 71 км', 0),
+(4, 4, 4, '2025-02-13 11:20:00', 'Казань, ул. Кремлевская', 1),
+(5, 5, 1, '2025-02-14 08:50:00', 'Новосибирск, Красный проспект', 1),
+(1, 1, 5, '2025-02-15 10:10:00', 'Москва, пр. Мира', 0),
+(6, 2, 6, '2025-02-16 17:40:00', 'Москва, Садовое кольцо', 0),
+(7, 4, 1, '2025-02-17 12:00:00', 'Казань, ул. Баумана', 1),
+(8, 6, 7, '2025-02-18 15:20:00', 'Екатеринбург, ул. Ленина', 0),
+(9, 7, 8, '2025-02-19 10:30:00', 'Нижний Новгород, пр. Гагарина', 0),
+(10, 8, 9, '2025-02-20 13:45:00', 'Самара, ул. Победы', 1),
+(11, 9, 10, '2025-02-21 09:00:00', 'Омск, пр. Мира', 1),
+(12, 10, 11, '2025-02-22 18:15:00', 'Ростов-на-Дону, ул. Большая Садовая', 0),
+(13, 11, 12, '2025-02-23 11:50:00', 'Уфа, пр. Октября', 1),
+(14, 12, 13, '2025-02-24 16:25:00', 'Красноярск, ул. Маркса', 0),
+(15, 13, 14, '2025-02-25 08:40:00', 'Пермь, шоссе Космонавтов', 1),
+(16, 14, 15, '2025-02-26 14:10:00', 'Воронеж, Московский пр.', 0),
+(17, 15, 16, '2025-02-27 12:35:00', 'Волгоград, ул. Мира', 1),
+(18, 16, 1, '2025-02-28 17:55:00', 'Москва, ул. Новый Арбат', 0),
+(19, 17, 2, '2025-03-01 23:20:00', 'Санкт-Петербург, Выборгское ш.', 0),
+(20, 1, 3, '2025-03-02 10:05:00', 'Казань, ул. Чистопольская', 1),
+(21, 2, 4, '2025-03-03 13:30:00', 'Новосибирск, ул. Димитрова', 1),
+(22, 3, 5, '2025-03-04 09:45:00', 'Екатеринбург, пр. Ленина', 0),
+(23, 4, 6, '2025-03-05 19:20:00', 'Москва, Ленинградский пр.', 1),
+(24, 5, 7, '2025-03-06 15:40:00', 'Самара, ул. Ново-Садовая', 0),
+(25, 6, 8, '2025-03-07 12:15:00', 'Омск, ул. Ленина', 1),
+(26, 7, 9, '2025-03-08 11:00:00', 'Ростов-на-Дону, пр. Стачки', 0),
+(27, 8, 10, '2025-03-09 16:30:00', 'Уфа, ул. Цюрупы', 1),
+(28, 9, 11, '2025-03-10 08:25:00', 'Красноярск, ул. 9 Мая', 0),
+(29, 10, 12, '2025-03-11 14:50:00', 'Пермь, ул. Петропавловская', 1),
+(1, 11, 13, '2025-03-12 18:05:00', 'Воронеж, ул. Плехановская', 0),
+(2, 12, 14, '2025-03-13 10:35:00', 'Волгоград, пр. Ленина', 1),
+(3, 13, 15, '2025-03-14 21:15:00', 'Москва, Рублевское ш.', 0),
+(4, 14, 16, '2025-03-15 07:50:00', 'Санкт-Петербург, пр. Просвещения', 1),
+(5, 15, 1, '2025-03-16 13:00:00', 'Казань, ул. Декабристов', 0);
+GO
+
+
+
+-- Запрос 1.1. Выбрать всех сотрудников ГИБДД со званием "Майор полиции"
+-- SQL запрос:
+SELECT OfficerID, LastName, FirstName, MiddleName, Rank, HireDate
+FROM Officers
+WHERE Rank = 'Майор полиции';
+GO
+
+-- Запрос 1.2. Выбрать все автомобили белого цвета
+-- SQL запрос:
+SELECT LicensePlate, Color, YearManufacture
+FROM Vehicles
+WHERE Color = 'Белый';
+GO
+
+-- Запрос 1.3. Выбрать все неоплаченные штрафы
+-- SQL запрос:
+SELECT TrafficViolationID, ViolationDateTime, Location, IsPaid
+FROM TrafficViolations
+WHERE IsPaid = 0;
+GO
+
+-- Запрос 1.4. Выбрать все марки автомобилей из Японии
+-- SQL запрос:
+SELECT MakeID, MakeName, Country
+FROM VehicleMakes
+WHERE Country = 'Япония';
+GO
+
+-- Запрос 1.5. Выбрать сотрудников, принятых на работу после 01.01.2020
+-- SQL запрос:
+SELECT LastName, FirstName, Rank, HireDate
+FROM Officers
+WHERE HireDate > CONVERT(DATE, '01.01.2020', 104);
+GO
+
+-- =====================================================
+-- ЗАПРОСЫ С JOIN И СОЕДИНЕНИЕ ТАБЛИЦ (5 шт.)
+-- =====================================================
+
+-- Запрос 2.1. Вывести список нарушений с указанием автомобиля и сотрудника
+-- SQL запрос:
+SELECT tv.TrafficViolationID, 
+       v.LicensePlate, 
+       o.LastName AS OfficerLastName,
+       tv.ViolationDateTime,
+       tv.Location
+FROM TrafficViolations tv
+INNER JOIN Vehicles v ON tv.VehicleID = v.VehicleID
+INNER JOIN Officers o ON tv.OfficerID = o.OfficerID;
+GO
+
+-- Запрос 2.2. Вывести всех сотрудников с названиями их подразделений
+-- SQL запрос:
+SELECT o.LastName, o.FirstName, o.Rank, d.DepartmentName, d.City
+FROM Officers o
+LEFT JOIN Departments d ON o.DepartmentID = d.DepartmentID;
+GO
+
+-- Запрос 2.3. Вывести автомобили с полной информацией о марке и модели
+-- SQL запрос:
+SELECT v.LicensePlate, 
+       vm.MakeName, 
+       vmd.ModelName, 
+       v.YearManufacture, 
+       v.Color
+FROM Vehicles v
+INNER JOIN VehicleModels vmd ON v.ModelID = vmd.ModelID
+INNER JOIN VehicleMakes vm ON vmd.MakeID = vm.MakeID;
+GO
+
+-- Запрос 2.4. Вывести все нарушения с описанием вида нарушения
+-- SQL запрос:
+SELECT tv.TrafficViolationID, 
+       tv.ViolationDateTime, 
+       vln.ViolationName, 
+       vln.FineAmount,
+       CASE WHEN tv.IsPaid = 1 THEN 'Оплачен' ELSE 'Не оплачен' END AS Status
+FROM TrafficViolations tv
+INNER JOIN Violations vln ON tv.ViolationID = vln.ViolationID;
+GO
+
+-- Запрос 2.5. Вывести подразделения и количество сотрудников в каждом
+-- SQL запрос:
+SELECT d.DepartmentName, 
+       d.City, 
+       COUNT(o.OfficerID) AS OfficersCount
+FROM Departments d
+LEFT JOIN Officers o ON d.DepartmentID = o.DepartmentID
+GROUP BY d.DepartmentName, d.City;
+GO
+
+-- =====================================================
+-- ЗАПРОСЫ С ГРУППИРОВКОЙ, СОРТИРОВКОЙ И АГРЕГИРОВАНИЕМ (5 шт.)
+-- =====================================================
+
+-- Запрос 3.1. Количество нарушений по каждому автомобилю (сортировка по убыванию)
+-- SQL запрос:
+SELECT v.LicensePlate, COUNT(*) AS ViolationsCount
+FROM TrafficViolations tv
+INNER JOIN Vehicles v ON tv.VehicleID = v.VehicleID
+GROUP BY v.LicensePlate
+ORDER BY ViolationsCount DESC;
+GO
+
+-- Запрос 3.2. Сумма штрафов по каждому сотруднику ГИБДД
+-- SQL запрос:
+SELECT o.LastName, o.FirstName, SUM(vln.FineAmount) AS TotalFines
+FROM TrafficViolations tv
+INNER JOIN Officers o ON tv.OfficerID = o.OfficerID
+INNER JOIN Violations vln ON tv.ViolationID = vln.ViolationID
+GROUP BY o.LastName, o.FirstName
+ORDER BY TotalFines DESC;
+GO
+
+-- Запрос 3.3. Средний штраф по каждому типу нарушения
+-- SQL запрос:
+SELECT ViolationName, AVG(FineAmount) AS AvgFine
+FROM Violations
+GROUP BY ViolationName
+ORDER BY AvgFine DESC;
+GO
+
+-- Запрос 3.4. Количество автомобилей по цветам
+-- SQL запрос:
+SELECT Color, COUNT(*) AS Count
+FROM Vehicles
+GROUP BY Color
+ORDER BY Count DESC;
+GO
+
+-- Запрос 3.5. Максимальная, минимальная и средняя сумма штрафа по месяцам
+-- SQL запрос:
+SELECT MONTH(ViolationDateTime) AS Month, 
+       YEAR(ViolationDateTime) AS Year,
+       MAX(vln.FineAmount) AS MaxFine,
+       MIN(vln.FineAmount) AS MinFine,
+       AVG(vln.FineAmount) AS AvgFine
+FROM TrafficViolations tv
+INNER JOIN Violations vln ON tv.ViolationID = vln.ViolationID
+GROUP BY MONTH(ViolationDateTime), YEAR(ViolationDateTime)
+ORDER BY Year, Month;
+GO
+
+-- =====================================================
+-- ВЛОЖЕННЫЕ ЗАПРОСЫ И ОБЪЕДИНЕНИЕ ЗАПРОСОВ (2 шт.)
+-- =====================================================
+
+-- Запрос 4.1. Автомобили, у которых сумма штрафов выше среднего (вложенный запрос)
+-- SQL запрос:
+SELECT v.LicensePlate, SUM(vln.FineAmount) AS TotalFine
+FROM TrafficViolations tv
+INNER JOIN Vehicles v ON tv.VehicleID = v.VehicleID
+INNER JOIN Violations vln ON tv.ViolationID = vln.ViolationID
+GROUP BY v.LicensePlate
+HAVING SUM(vln.FineAmount) > (
+    SELECT AVG(TotalFine)
+    FROM (
+        SELECT SUM(vln2.FineAmount) AS TotalFine
+        FROM TrafficViolations tv2
+        INNER JOIN Violations vln2 ON tv2.ViolationID = vln2.ViolationID
+        GROUP BY tv2.VehicleID
+    ) AS SubQuery
+);
+GO
+
+-- Запрос 4.2. Сотрудники, которые выписали больше 2 штрафов (с UNION)
+-- SQL запрос:
+SELECT o.LastName, o.FirstName, COUNT(*) AS FinesCount
+FROM TrafficViolations tv
+INNER JOIN Officers o ON tv.OfficerID = o.OfficerID
+GROUP BY o.LastName, o.FirstName
+HAVING COUNT(*) > 2
+
+UNION
+
+SELECT 'ALL OTHERS' AS LastName, '' AS FirstName, SUM(FinesCount) AS FinesCount
+FROM (
+    SELECT COUNT(*) AS FinesCount
+    FROM TrafficViolations tv
+    INNER JOIN Officers o ON tv.OfficerID = o.OfficerID
+    GROUP BY o.LastName, o.FirstName
+    HAVING COUNT(*) <= 2
+) AS Others;
+GO
+
+-- =====================================================
+-- ЗАПРОСЫ С ФУНКЦИЯМИ ПО РАБОТЕ С ДАТАМИ, ЧИСЛАМИ, СТРОКАМИ (3 шт.)
+-- =====================================================
+
+-- Запрос 5.1. Функция с датами: сколько дней прошло с момента нарушения
+-- SQL запрос:
+SELECT TrafficViolationID, 
+       ViolationDateTime,
+       DATEDIFF(DAY, ViolationDateTime, GETDATE()) AS DaysAgo,
+       DATEDIFF(MONTH, ViolationDateTime, GETDATE()) AS MonthsAgo
+FROM TrafficViolations;
+GO
+
+-- Запрос 5.2. Функция с числами: штраф с НДС (20%) и округлением
+-- SQL запрос:
+SELECT ViolationName, 
+       FineAmount,
+       ROUND(FineAmount * 0.2, 2) AS NDS_20,
+       CEILING(FineAmount) AS CeilingValue,
+       FLOOR(FineAmount) AS FloorValue
+FROM Violations;
+GO
+
+-- Запрос 5.3. Функция со строками: форматирование ФИО и госномера
+-- SQL запрос:
+SELECT UPPER(LicensePlate) AS UpperPlate,
+       LOWER(LicensePlate) AS LowerPlate,
+       CONCAT(OwnerLastName, ' ', LEFT(OwnerFirstName, 1), '.', LEFT(OwnerMiddleName, 1), '.') AS ShortOwnerName,
+       LEN(OwnerLastName) AS LastNameLength
+FROM Vehicles;
+GO
+
+-- =====================================================
+-- ЗАПРОСЫ НА ПРИМЕНЕНИЕ ПЕРЕМЕННЫХ И УПРАВЛЯЮЩИХ КОНСТРУКЦИЙ (1 шт.)
+-- =====================================================
+
+-- Запрос 6.1. Поиск нарушений с использованием переменных и IF
+-- SQL запрос:
+DECLARE @MinFine DECIMAL(10,2) = 1000;
+DECLARE @MaxFine DECIMAL(10,2) = 5000;
+
+IF @MinFine < @MaxFine
+BEGIN
+    SELECT ViolationName, FineAmount
+    FROM Violations
+    WHERE FineAmount BETWEEN @MinFine AND @MaxFine
+    ORDER BY FineAmount;
+END
+ELSE
+BEGIN
+    PRINT 'Ошибка: минимальный штраф больше максимального';
+END
+GO
+
+-- =====================================================
+-- ХРАНИМЫЕ ПРОЦЕДУРЫ (2 шт.)
+-- =====================================================
+
+-- Запрос 7.1. Хранимая процедура: добавление нового нарушения
+-- SQL запрос:
+CREATE OR ALTER PROCEDURE sp_AddTrafficViolation
+    @LicensePlate NVARCHAR(10),
+    @OfficerLastName NVARCHAR(50),
+    @ViolationCode CHAR(8),
+    @ViolationDateTime DATETIME,
+    @Location NVARCHAR(200)
+AS
+BEGIN
+    DECLARE @VehicleID INT, @OfficerID INT, @ViolationID INT;
+    
+    -- Получаем ID автомобиля
+    SELECT @VehicleID = VehicleID FROM Vehicles WHERE LicensePlate = @LicensePlate;
+    
+    -- Получаем ID сотрудника
+    SELECT @OfficerID = OfficerID FROM Officers WHERE LastName = @OfficerLastName;
+    
+    -- Получаем ID нарушения
+    SELECT @ViolationID = ViolationID FROM Violations WHERE ViolationCode = @ViolationCode;
+    
+    -- Проверяем, что все ID найдены
+    IF @VehicleID IS NOT NULL AND @OfficerID IS NOT NULL AND @ViolationID IS NOT NULL
+    BEGIN
+        INSERT INTO TrafficViolations (VehicleID, OfficerID, ViolationID, ViolationDateTime, Location, IsPaid)
+        VALUES (@VehicleID, @OfficerID, @ViolationID, @ViolationDateTime, @Location, 0);
+        
+        PRINT 'Нарушение успешно добавлено!';
+    END
+    ELSE
+    BEGIN
+        PRINT 'Ошибка: не найдены данные о машине, сотруднике или нарушении';
+    END
+END;
+GO
+
+-- Запрос 7.2. Хранимая процедура: отчёт по автомобилю
+-- SQL запрос:
+CREATE OR ALTER PROCEDURE sp_CarViolationReport
+    @LicensePlate NVARCHAR(10)
+AS
+BEGIN
+    SELECT 
+        v.LicensePlate,
+        v.VIN,
+        vm.MakeName,
+        vmd.ModelName,
+        COUNT(tv.TrafficViolationID) AS ViolationsCount,
+        SUM(vln.FineAmount) AS TotalFine,
+        SUM(CASE WHEN tv.IsPaid = 1 THEN vln.FineAmount ELSE 0 END) AS PaidAmount,
+        SUM(CASE WHEN tv.IsPaid = 0 THEN vln.FineAmount ELSE 0 END) AS DebtAmount
+    FROM Vehicles v
+    LEFT JOIN TrafficViolations tv ON v.VehicleID = tv.VehicleID
+    LEFT JOIN Violations vln ON tv.ViolationID = vln.ViolationID
+    LEFT JOIN VehicleModels vmd ON v.ModelID = vmd.ModelID
+    LEFT JOIN VehicleMakes vm ON vmd.MakeID = vm.MakeID
+    WHERE v.LicensePlate = @LicensePlate
+    GROUP BY v.LicensePlate, v.VIN, vm.MakeName, vmd.ModelName;
+END;
+GO
+
+-- Пример вызова хранимых процедур:
+-- EXEC sp_AddTrafficViolation 'А777ВВ77', 'Иванов', '12.9.2', CONVERT(DATETIME, '20.05.2025 15:30:00', 104), 'Москва, ул. Тверская';
+-- EXEC sp_CarViolationReport 'А777ВВ77';
+GO
+
+-- =====================================================
+-- ТРИГГЕРЫ (3 шт.: INSERT, UPDATE, DELETE)
+-- =====================================================
+
+-- Запрос 8.1. Триггер на INSERT: проверка минимального года выпуска
+-- SQL запрос:
+CREATE OR ALTER TRIGGER trg_Vehicle_InsertCheck
+ON Vehicles
+INSTEAD OF INSERT
+AS
+BEGIN
+    INSERT INTO Vehicles (LicensePlate, VIN, ModelID, YearManufacture, Color, OwnerLastName, OwnerFirstName, OwnerMiddleName)
+    SELECT 
+        LicensePlate, VIN, ModelID,
+        CASE WHEN YearManufacture < 1900 THEN 1900 ELSE YearManufacture END,
+        Color, OwnerLastName, OwnerFirstName, OwnerMiddleName
+    FROM inserted;
+    
+    PRINT 'Автомобиль добавлен (год выпуска скорректирован при необходимости)';
+END;
+GO
+
+-- Запрос 8.2. Триггер на UPDATE: логирование изменения оплаты штрафа
+-- SQL запрос:
+CREATE OR ALTER TRIGGER trg_TrafficViolation_UpdateLog
+ON TrafficViolations
+AFTER UPDATE
+AS
+BEGIN
+    IF UPDATE(IsPaid)
+    BEGIN
+        INSERT INTO TrafficViolationsLog (TrafficViolationID, OldIsPaid, NewIsPaid, ChangeDate)
+        SELECT 
+            i.TrafficViolationID,
+            d.IsPaid,
+            i.IsPaid,
+            GETDATE()
+        FROM inserted i
+        INNER JOIN deleted d ON i.TrafficViolationID = d.TrafficViolationID
+        WHERE i.IsPaid != d.IsPaid;
+        
+        PRINT 'Изменение оплаты зафиксировано в логе';
+    END
+END;
+GO
+
+-- Создаём таблицу для логов (для триггера UPDATE)
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'TrafficViolationsLog')
+BEGIN
+    CREATE TABLE TrafficViolationsLog (
+        LogID INT IDENTITY(1,1) PRIMARY KEY,
+        TrafficViolationID INT,
+        OldIsPaid BIT,
+        NewIsPaid BIT,
+        ChangeDate DATETIME
+    );
+END;
+GO
+
+-- Запрос 8.3. Триггер на DELETE: запрет удаления автомобилей с неоплаченными штрафами
+-- SQL запрос:
+CREATE OR ALTER TRIGGER trg_Vehicle_DeleteCheck
+ON Vehicles
+INSTEAD OF DELETE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM deleted d
+        INNER JOIN TrafficViolations tv ON d.VehicleID = tv.VehicleID
+        WHERE tv.IsPaid = 0
+    )
+    BEGIN
+        RAISERROR('Нельзя удалить автомобиль с неоплаченными штрафами!', 16, 1);
+        RETURN;
+    END
+    ELSE
+    BEGIN
+        DELETE FROM Vehicles WHERE VehicleID IN (SELECT VehicleID FROM deleted);
+        PRINT 'Автомобиль успешно удалён';
+    END;
+END;
+GO
+
+-- =====================================================
+-- ПРЕДСТАВЛЕНИЯ (VIEW) (1 шт.)
+-- =====================================================
+
+-- Запрос 9.1. Представление: полная информация о нарушениях
+-- SQL запрос:
+CREATE OR ALTER VIEW vw_FullViolationInfo AS
+SELECT 
+    tv.TrafficViolationID,
+    v.LicensePlate,
+    v.VIN,
+    vm.MakeName,
+    vmd.ModelName,
+    v.Color,
+    CONCAT(v.OwnerLastName, ' ', v.OwnerFirstName, ' ', v.OwnerMiddleName) AS OwnerFullName,
+    o.LastName AS OfficerLastName,
+    o.FirstName AS OfficerFirstName,
+    o.Rank AS OfficerRank,
+    vln.ViolationName,
+    vln.FineAmount,
+    vln.Points,
+    tv.ViolationDateTime,
+    tv.Location,
+    CASE WHEN tv.IsPaid = 1 THEN 'Оплачен' ELSE 'Не оплачен' END AS PaymentStatus
+FROM TrafficViolations tv
+INNER JOIN Vehicles v ON tv.VehicleID = v.VehicleID
+INNER JOIN VehicleModels vmd ON v.ModelID = vmd.ModelID
+INNER JOIN VehicleMakes vm ON vmd.MakeID = vm.MakeID
+INNER JOIN Officers o ON tv.OfficerID = o.OfficerID
+INNER JOIN Violations vln ON tv.ViolationID = vln.ViolationID;
+GO
+
+-- Пример использования представления:
+SELECT * FROM vw_FullViolationInfo WHERE FineAmount > 1000;
+GO
+
+-- =====================================================
+-- ОКОННЫЕ ФУНКЦИИ (1 шт.)
+-- =====================================================
+
+-- Запрос 10.1. Ранжирование автомобилей по сумме штрафов
+-- SQL запрос:
+SELECT 
+    v.LicensePlate,
+    vm.MakeName,
+    vmd.ModelName,
+    SUM(vln.FineAmount) AS TotalFine,
+    RANK() OVER (ORDER BY SUM(vln.FineAmount) DESC) AS RankByFine,
+    DENSE_RANK() OVER (ORDER BY SUM(vln.FineAmount) DESC) AS DenseRank,
+    ROW_NUMBER() OVER (ORDER BY SUM(vln.FineAmount) DESC) AS RowNum,
+    SUM(SUM(vln.FineAmount)) OVER () AS TotalAllFines,
+    AVG(SUM(vln.FineAmount)) OVER () AS AvgFine
+FROM TrafficViolations tv
+INNER JOIN Vehicles v ON tv.VehicleID = v.VehicleID
+INNER JOIN VehicleModels vmd ON v.ModelID = vmd.ModelID
+INNER JOIN VehicleMakes vm ON vmd.MakeID = vm.MakeID
+INNER JOIN Violations vln ON tv.ViolationID = vln.ViolationID
+GROUP BY v.LicensePlate, vm.MakeName, vmd.ModelName
+ORDER BY TotalFine DESC;
+GO
+
+-- =====================================================
+-- ДОПОЛНИТЕЛЬНЫЕ ЗАПРОСЫ ДЛЯ ДОСТИЖЕНИЯ 30+
+-- =====================================================
+
+-- Запрос 11.1. Сводка по месяцам (PIVOT)
+-- SQL запрос:
+SELECT 
+    YEAR(ViolationDateTime) AS Year,
+    SUM(CASE WHEN MONTH(ViolationDateTime) = 1 THEN vln.FineAmount ELSE 0 END) AS January,
+    SUM(CASE WHEN MONTH(ViolationDateTime) = 2 THEN vln.FineAmount ELSE 0 END) AS February,
+    SUM(CASE WHEN MONTH(ViolationDateTime) = 3 THEN vln.FineAmount ELSE 0 END) AS March,
+    SUM(vln.FineAmount) AS Total
+FROM TrafficViolations tv
+INNER JOIN Violations vln ON tv.ViolationID = vln.ViolationID
+GROUP BY YEAR(ViolationDateTime);
+GO
+
+-- Запрос 11.2. Топ-3 нарушителя по сумме штрафов (с LIMIT/TOP)
+-- SQL запрос:
+SELECT TOP 3
+    v.LicensePlate,
+    SUM(vln.FineAmount) AS TotalFine
+FROM TrafficViolations tv
+INNER JOIN Vehicles v ON tv.VehicleID = v.VehicleID
+INNER JOIN Violations vln ON tv.ViolationID = vln.ViolationID
+GROUP BY v.LicensePlate
+ORDER BY TotalFine DESC;
+GO
+
+-- Запрос 11.3. Кросс-таблица: количество нарушений по городам и типам
+-- SQL запрос:
+SELECT 
+    d.City,
+    vln.ViolationName,
+    COUNT(*) AS ViolationsCount
+FROM TrafficViolations tv
+INNER JOIN Vehicles v ON tv.VehicleID = v.VehicleID
+INNER JOIN Departments d ON tv.OfficerID = d.DepartmentID
+INNER JOIN Violations vln ON tv.ViolationID = vln.ViolationID
+GROUP BY d.City, vln.ViolationName
+ORDER BY d.City, ViolationsCount DESC;
+GO

@@ -1,0 +1,707 @@
+CREATE TABLE BoatCategories (
+    CategoryID INT IDENTITY(1,1) PRIMARY KEY,
+    CategoryName NVARCHAR(50) NOT NULL UNIQUE,
+    Description NVARCHAR(200)
+);
+
+-- 15+ строк в таблице категорий (16 записей)
+INSERT INTO BoatCategories (CategoryName, Description) VALUES
+('Моторные лодки', 'Лодки с подвесным или стационарным мотором'),
+('Надувные лодки', 'Легкие надувные лодки из ПВХ'),
+('Катера', 'Быстроходные суда для прогулок и рыбалки'),
+('Яхты', 'Комфортабельные суда для дальних путешествий'),
+('Гидроциклы', 'Водные мотоциклы для активного отдыха'),
+('Вёсельные лодки', 'Лодки для гребли и сплава'),
+('Парусные лодки', 'Лодки с парусным вооружением'),
+('Каяки', 'Одноместные лодки для сплава'),
+('Понтоны', 'Устойчивые лодки для пикников'),
+('Рыболовные лодки', 'Специализированные лодки для рыбалки'),
+('Спортивные катера', 'Скоростные катера для соревнований'),
+('Прогулочные катера', 'Катера для семейного отдыха'),
+('Лодки для дайвинга', 'Специализированные лодки для дайверов'),
+('Электролодки', 'Экологичные лодки на электродвигателях'),
+('Туристические лодки', 'Лодки для длительных путешествий'),
+('Утилитарные лодки', 'Лодки для хозяйственных нужд');
+GO
+
+-- =====================================================
+-- 2. Таблица: Производители лодок
+-- =====================================================
+CREATE TABLE Manufacturers (
+    ManufacturerID INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL UNIQUE,
+    Country NVARCHAR(50),
+    Website NVARCHAR(100)
+);
+
+-- 15+ строк производителей (16 записей)
+INSERT INTO Manufacturers (Name, Country, Website) VALUES
+('Lund Boats', 'США', 'www.lundboats.com'),
+('Yamaha', 'Япония', 'www.yamaha-motor.com'),
+('Sea Ray', 'США', 'www.searay.com'),
+('Bayliner', 'США', 'www.bayliner.com'),
+('Boston Whaler', 'США', 'www.bostonwhaler.com'),
+('Tracker Boats', 'США', 'www.trackerboats.com'),
+('Highfield', 'Китай', 'www.highfieldboats.com'),
+('Flipper', 'Финляндия', 'www.flipperboats.com'),
+('Nimbus', 'Швеция', 'www.nimbus.se'),
+('Buster', 'Финляндия', 'www.buster.fi'),
+('Solar', 'Россия', 'www.solarboats.ru'),
+('Kazan', 'Россия', 'www.kazanboats.ru'),
+('Master Boat', 'Польша', 'www.masterboat.com'),
+('Quicksilver', 'США', 'www.quicksilver.com'),
+('Seadoo', 'Канада', 'www.seadoo.com'),
+('Bell', 'Германия', 'www.bellboats.de');
+GO
+
+-- =====================================================
+-- 3. Таблица: Лодки (основная таблица)
+-- =====================================================
+CREATE TABLE Boats (
+    BoatID INT IDENTITY(1,1) PRIMARY KEY,
+    ModelName NVARCHAR(100) NOT NULL,
+    CategoryID INT NOT NULL,
+    ManufacturerID INT NOT NULL,
+    Length DECIMAL(5,2),  -- длина в метрах
+    Width DECIMAL(4,2),    -- ширина в метрах
+    MaxPassengers INT,     -- макс. пассажиров
+    EnginePower INT,       -- мощность мотора (л.с.)
+    Price DECIMAL(12,2) NOT NULL,
+    StockQuantity INT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_Boat_Category FOREIGN KEY (CategoryID) REFERENCES BoatCategories(CategoryID),
+    CONSTRAINT FK_Boat_Manufacturer FOREIGN KEY (ManufacturerID) REFERENCES Manufacturers(ManufacturerID),
+    CONSTRAINT CHK_Price CHECK (Price > 0)
+);
+
+-- 15+ строк лодок (18 записей)
+INSERT INTO Boats (ModelName, CategoryID, ManufacturerID, Length, Width, MaxPassengers, EnginePower, Price, StockQuantity) VALUES
+('Fishing 1700', 10, 1, 5.18, 1.98, 4, 60, 1250000.00, 5),
+('Yamaha 242X', 2, 2, 7.32, 2.59, 12, 240, 3850000.00, 2),
+('Sea Ray SPX 190', 11, 3, 5.79, 2.44, 8, 200, 2950000.00, 3),
+('Bayliner Element E18', 12, 4, 5.49, 2.29, 7, 150, 1890000.00, 4),
+('Boston Whaler 130', 1, 5, 3.96, 1.78, 4, 40, 890000.00, 6),
+('Tracker Pro Team 175', 10, 6, 5.33, 2.13, 3, 50, 750000.00, 7),
+('Highfield CL310', 2, 7, 3.10, 1.70, 5, 20, 420000.00, 10),
+('Flipper 640 DC', 12, 8, 6.40, 2.40, 8, 150, 2150000.00, 2),
+('Nimbus 305 Drophead', 4, 9, 9.45, 3.20, 10, 300, 12500000.00, 1),
+('Buster XL', 1, 10, 5.50, 2.05, 5, 75, 980000.00, 4),
+('Solar 460', 10, 11, 4.60, 1.85, 4, 30, 520000.00, 12),
+('Kazan 480', 1, 12, 4.80, 1.90, 4, 40, 480000.00, 8),
+('Master Boat 500', 6, 13, 5.00, 1.60, 2, 0, 250000.00, 15),
+('Quicksilver 605', 12, 14, 6.05, 2.35, 7, 115, 1650000.00, 3),
+('Seadoo Spark', 5, 15, 3.05, 1.18, 2, 90, 650000.00, 9),
+('Bell Atlantic 18', 7, 16, 5.50, 2.30, 6, 0, 1100000.00, 2),
+('Yamaha AR195', 11, 2, 5.79, 2.49, 8, 180, 2750000.00, 2),
+('Lund 1875 Pro V', 10, 1, 5.69, 2.13, 5, 115, 1890000.00, 3);
+GO
+
+-- =====================================================
+-- 4. Таблица: Клиенты
+-- =====================================================
+CREATE TABLE Customers (
+    CustomerID INT IDENTITY(1,1) PRIMARY KEY,
+    LastName NVARCHAR(50) NOT NULL,
+    FirstName NVARCHAR(50) NOT NULL,
+    MiddleName NVARCHAR(50),
+    Email NVARCHAR(100) UNIQUE NOT NULL,
+    Phone NVARCHAR(20) NOT NULL,
+    City NVARCHAR(50),
+    RegistrationDate DATE NOT NULL DEFAULT GETDATE()
+);
+
+-- 15+ строк клиентов (16 записей)
+INSERT INTO Customers (LastName, FirstName, MiddleName, Email, Phone, City, RegistrationDate) VALUES
+('Иванов', 'Сергей', 'Петрович', 'ivanov@mail.ru', '+79161234567', 'Москва', '2024-01-15'),
+('Петрова', 'Анна', 'Игоревна', 'petrova@mail.ru', '+79262345678', 'Санкт-Петербург', '2024-02-20'),
+('Сидоров', 'Алексей', 'Владимирович', 'sidorov@mail.ru', '+79373456789', 'Казань', '2024-03-10'),
+('Кузнецова', 'Елена', 'Андреевна', 'kuznetsova@mail.ru', '+79484567890', 'Новосибирск', '2024-01-05'),
+('Смирнов', 'Дмитрий', 'Алексеевич', 'smirnov@mail.ru', '+79595678901', 'Екатеринбург', '2024-04-18'),
+('Васильев', 'Андрей', 'Николаевич', 'vasiliev@mail.ru', '+79606789012', 'Нижний Новгород', '2024-02-28'),
+('Попова', 'Мария', 'Сергеевна', 'popova@mail.ru', '+79717890123', 'Самара', '2024-03-22'),
+('Соколов', 'Игорь', 'Владимирович', 'sokolov@mail.ru', '+79828901234', 'Омск', '2024-01-30'),
+('Михайлова', 'Ольга', 'Дмитриевна', 'mikhailova@mail.ru', '+79939012345', 'Ростов-на-Дону', '2024-04-05'),
+('Федоров', 'Павел', 'Александрович', 'fedorov@mail.ru', '+78001234567', 'Уфа', '2024-02-14'),
+('Морозов', 'Владимир', 'Петрович', 'morozov@mail.ru', '+78102345678', 'Красноярск', '2024-03-01'),
+('Волкова', 'Татьяна', 'Игоревна', 'volkova@mail.ru', '+78203456789', 'Пермь', '2024-04-10'),
+('Алексеев', 'Николай', 'Сергеевич', 'alekseev@mail.ru', '+78304567890', 'Воронеж', '2024-01-25'),
+('Лебедева', 'Екатерина', 'Андреевна', 'lebedev@mail.ru', '+78405678901', 'Волгоград', '2024-03-15'),
+('Козлов', 'Максим', 'Иванович', 'kozlov@mail.ru', '+78506789012', 'Краснодар', '2024-02-05'),
+('Новикова', 'Ирина', 'Владимировна', 'novikova@mail.ru', '+78607890123', 'Тюмень', '2024-04-20');
+GO
+
+-- =====================================================
+-- 5. Таблица: Заказы
+-- =====================================================
+CREATE TABLE Orders (
+    OrderID INT IDENTITY(1,1) PRIMARY KEY,
+    CustomerID INT NOT NULL,
+    BoatID INT NOT NULL,
+    OrderDate DATETIME NOT NULL DEFAULT GETDATE(),
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    TotalAmount DECIMAL(12,2) NOT NULL,
+    Status NVARCHAR(30) NOT NULL DEFAULT 'В обработке', -- В обработке, Оплачен, Доставлен, Отменён
+    DeliveryAddress NVARCHAR(200),
+    CONSTRAINT FK_Order_Customer FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
+    CONSTRAINT FK_Order_Boat FOREIGN KEY (BoatID) REFERENCES Boats(BoatID)
+);
+
+-- 15+ строк заказов (18 записей)
+INSERT INTO Orders (CustomerID, BoatID, OrderDate, Quantity, TotalAmount, Status, DeliveryAddress) VALUES
+(1, 1, '2025-01-20 10:30:00', 1, 1250000.00, 'Доставлен', 'Москва, ул. Лодочная, 15'),
+(2, 3, '2025-02-15 14:20:00', 1, 2950000.00, 'Оплачен', 'Санкт-Петербург, наб. Морская, 7'),
+(3, 5, '2025-02-28 09:45:00', 2, 1780000.00, 'Доставлен', 'Казань, ул. Речная, 22'),
+(4, 7, '2025-03-05 16:10:00', 1, 420000.00, 'В обработке', 'Новосибирск, пр. Водный, 8'),
+(5, 2, '2025-03-10 11:30:00', 1, 3850000.00, 'Оплачен', 'Екатеринбург, ул. Яхтенная, 3'),
+(6, 4, '2025-03-12 13:50:00', 1, 1890000.00, 'Доставлен', 'Нижний Новгород, наб. Волжская, 12'),
+(7, 6, '2025-03-15 09:15:00', 1, 750000.00, 'Отменён', 'Самара, ул. Причальная, 5'),
+(8, 8, '2025-03-18 15:40:00', 1, 2150000.00, 'Доставлен', 'Омск, ул. Лодочная, 42'),
+(9, 10, '2025-03-20 12:25:00', 3, 2940000.00, 'Оплачен', 'Ростов-на-Дону, пр. Морской, 18'),
+(10, 11, '2025-03-22 17:00:00', 2, 1040000.00, 'Доставлен', 'Уфа, ул. Речная, 9'),
+(11, 13, '2025-03-25 10:35:00', 1, 250000.00, 'В обработке', 'Красноярск, ул. Набережная, 4'),
+(12, 15, '2025-03-28 14:55:00', 1, 650000.00, 'Доставлен', 'Пермь, ул. Камская, 11'),
+(13, 12, '2025-04-01 11:10:00', 2, 960000.00, 'Оплачен', 'Воронеж, ул. Лодочная, 6'),
+(14, 14, '2025-04-03 09:30:00', 1, 1650000.00, 'Доставлен', 'Волгоград, пр. Волжский, 23'),
+(15, 16, '2025-04-05 16:45:00', 1, 1100000.00, 'В обработке', 'Краснодар, ул. Черноморская, 1'),
+(16, 17, '2025-04-07 13:20:00', 1, 2750000.00, 'Оплачен', 'Тюмень, ул. Озёрная, 7'),
+(1, 18, '2025-04-10 10:00:00', 1, 1890000.00, 'Доставлен', 'Москва, ул. Лодочная, 15'),
+(2, 9, '2025-04-12 12:15:00', 1, 12500000.00, 'В обработке', 'Санкт-Петербург, наб. Морская, 7');
+GO
+
+-- Запрос 1.1. Выбрать все лодки с ценой до 1 000 000 рублей
+-- SQL запрос:
+SELECT ModelName, Price, StockQuantity
+FROM Boats
+WHERE Price < 1000000
+ORDER BY Price;
+GO
+
+-- Запрос 1.2. Выбрать всех клиентов из Москвы
+-- SQL запрос:
+SELECT LastName, FirstName, Phone, Email
+FROM Customers
+WHERE City = 'Москва';
+GO
+
+-- Запрос 1.3. Выбрать лодки с мощностью мотора более 150 л.с.
+-- SQL запрос:
+SELECT ModelName, EnginePower, Price
+FROM Boats
+WHERE EnginePower > 150
+ORDER BY EnginePower DESC;
+GO
+
+-- Запрос 1.4. Выбрать заказы со статусом "Доставлен"
+-- SQL запрос:
+SELECT OrderID, OrderDate, Status
+FROM Orders
+WHERE Status = 'Доставлен';
+GO
+
+-- Запрос 1.5. Выбрать лодки которых нет в наличии (StockQuantity = 0)
+-- SQL запрос:
+SELECT ModelName, StockQuantity
+FROM Boats
+WHERE StockQuantity = 0;
+GO
+
+-- =====================================================
+-- ЗАПРОСЫ С JOIN И СОЕДИНЕНИЕ ТАБЛИЦ (5 шт.)
+-- =====================================================
+
+-- Запрос 2.1. Вывести заказы с деталями клиентов
+-- SQL запрос:
+SELECT o.OrderID, 
+       CONCAT(c.LastName, ' ', c.FirstName) AS CustomerName,
+       c.Phone,
+       o.OrderDate,
+       o.TotalAmount,
+       o.Status
+FROM Orders o
+INNER JOIN Customers c ON o.CustomerID = c.CustomerID;
+GO
+
+-- Запрос 2.2. Вывести лодки с названиями категорий и производителей
+-- SQL запрос:
+SELECT b.ModelName, 
+       bc.CategoryName, 
+       m.Name AS Manufacturer,
+       b.Length,
+       b.Price
+FROM Boats b
+INNER JOIN BoatCategories bc ON b.CategoryID = bc.CategoryID
+INNER JOIN Manufacturers m ON b.ManufacturerID = m.ManufacturerID;
+GO
+
+-- Запрос 2.3. Вывести все заказы с названиями лодок и клиентов
+-- SQL запрос:
+SELECT o.OrderID,
+       c.LastName AS CustomerLastName,
+       c.City,
+       b.ModelName AS BoatModel,
+       o.Quantity,
+       o.TotalAmount,
+       o.Status
+FROM Orders o
+INNER JOIN Customers c ON o.CustomerID = c.CustomerID
+INNER JOIN Boats b ON o.BoatID = b.BoatID;
+GO
+
+-- Запрос 2.4. Вывести производителей и количество их лодок в каталоге
+-- SQL запрос:
+SELECT m.Name AS Manufacturer, 
+       m.Country,
+       COUNT(b.BoatID) AS BoatCount
+FROM Manufacturers m
+LEFT JOIN Boats b ON m.ManufacturerID = b.ManufacturerID
+GROUP BY m.Name, m.Country;
+GO
+
+-- Запрос 2.5. Вывести категории и среднюю цену лодок в каждой
+-- SQL запрос:
+SELECT bc.CategoryName,
+       COUNT(b.BoatID) AS BoatCount,
+       AVG(b.Price) AS AvgPrice
+FROM BoatCategories bc
+LEFT JOIN Boats b ON bc.CategoryID = b.CategoryID
+GROUP BY bc.CategoryName;
+GO
+
+-- =====================================================
+-- ЗАПРОСЫ С ГРУППИРОВКОЙ, СОРТИРОВКОЙ И АГРЕГИРОВАНИЕМ (5 шт.)
+-- =====================================================
+
+-- Запрос 3.1. Общая выручка по каждому статусу заказа
+-- SQL запрос:
+SELECT Status, 
+       COUNT(*) AS OrderCount,
+       SUM(TotalAmount) AS TotalRevenue,
+       AVG(TotalAmount) AS AvgOrderAmount
+FROM Orders
+GROUP BY Status
+ORDER BY TotalRevenue DESC;
+GO
+
+-- Запрос 3.2. Сумма заказов по каждому клиенту (топ 10)
+-- SQL запрос:
+SELECT TOP 10
+    CONCAT(c.LastName, ' ', c.FirstName) AS CustomerName,
+    COUNT(o.OrderID) AS OrdersCount,
+    SUM(o.TotalAmount) AS TotalSpent
+FROM Orders o
+INNER JOIN Customers c ON o.CustomerID = c.CustomerID
+GROUP BY c.LastName, c.FirstName
+ORDER BY TotalSpent DESC;
+GO
+
+-- Запрос 3.3. Количество проданных лодок по месяцам
+-- SQL запрос:
+SELECT 
+    YEAR(OrderDate) AS Year,
+    MONTH(OrderDate) AS Month,
+    COUNT(*) AS OrdersCount,
+    SUM(Quantity) AS BoatsSold,
+    SUM(TotalAmount) AS Revenue
+FROM Orders
+GROUP BY YEAR(OrderDate), MONTH(OrderDate)
+ORDER BY Year, Month;
+GO
+
+-- Запрос 3.4. Самые продаваемые модели лодок
+-- SQL запрос:
+SELECT b.ModelName,
+       SUM(o.Quantity) AS TotalSold,
+       COUNT(o.OrderID) AS OrderCount,
+       b.Price
+FROM Orders o
+INNER JOIN Boats b ON o.BoatID = b.BoatID
+GROUP BY b.ModelName, b.Price
+ORDER BY TotalSold DESC;
+GO
+
+-- Запрос 3.5. Статистика по странам производителей
+-- SQL запрос:
+SELECT Country,
+       COUNT(DISTINCT ManufacturerID) AS ManufacturersCount,
+       COUNT(BoatID) AS BoatsCount,
+       AVG(Price) AS AvgPrice
+FROM Manufacturers m
+LEFT JOIN Boats b ON m.ManufacturerID = b.ManufacturerID
+GROUP BY Country
+ORDER BY BoatsCount DESC;
+GO
+
+-- =====================================================
+-- ВЛОЖЕННЫЕ ЗАПРОСЫ И ОБЪЕДИНЕНИЕ ЗАПРОСОВ (2 шт.)
+-- =====================================================
+
+-- Запрос 4.1. Лодки дороже средней цены (вложенный запрос)
+-- SQL запрос:
+SELECT ModelName, Price
+FROM Boats
+WHERE Price > (SELECT AVG(Price) FROM Boats)
+ORDER BY Price DESC;
+GO
+
+-- Запрос 4.2. Клиенты, которые покупали лодки дороже 2 млн (с UNION)
+-- SQL запрос:
+SELECT DISTINCT c.CustomerID, c.LastName, c.FirstName, 'Покупал дорогую лодку' AS PurchaseType
+FROM Customers c
+INNER JOIN Orders o ON c.CustomerID = o.CustomerID
+INNER JOIN Boats b ON o.BoatID = b.BoatID
+WHERE b.Price > 2000000
+
+UNION
+
+SELECT DISTINCT c.CustomerID, c.LastName, c.FirstName, 'Покупал только бюджетные' AS PurchaseType
+FROM Customers c
+WHERE c.CustomerID NOT IN (
+    SELECT DISTINCT c2.CustomerID
+    FROM Customers c2
+    INNER JOIN Orders o2 ON c2.CustomerID = o2.CustomerID
+    INNER JOIN Boats b2 ON o2.BoatID = b2.BoatID
+    WHERE b2.Price > 2000000
+);
+GO
+
+-- =====================================================
+-- ЗАПРОСЫ С ФУНКЦИЯМИ ПО РАБОТЕ С ДАТАМИ, ЧИСЛАМИ, СТРОКАМИ (3 шт.)
+-- =====================================================
+
+-- Запрос 5.1. Функция с датами: клиенты с датой регистрации
+-- SQL запрос:
+SELECT LastName, 
+       FirstName, 
+       RegistrationDate,
+       DATEDIFF(DAY, RegistrationDate, GETDATE()) AS DaysSinceRegistration,
+       DATEDIFF(MONTH, RegistrationDate, GETDATE()) AS MonthsSinceRegistration,
+       FORMAT(RegistrationDate, 'dd MMMM yyyy', 'ru-RU') AS FormattedDate
+FROM Customers;
+GO
+
+-- Запрос 5.2. Функция с числами: цена со скидкой и налогом
+-- SQL запрос:
+SELECT ModelName,
+       Price,
+       ROUND(Price * 0.05, 2) AS NDS_5Percent,
+       ROUND(Price * 0.2, 2) AS NDS_20Percent,
+       FLOOR(Price / 100000) * 100000 AS PriceFloor_100k,
+       CEILING(Price / 100000) * 100000 AS PriceCeil_100k,
+       ROUND(Price * 0.95, 2) AS Discount5Price
+FROM Boats;
+GO
+
+-- Запрос 5.3. Функция со строками: форматирование телефонов и email
+-- SQL запрос:
+SELECT LastName,
+       FirstName,
+       UPPER(LastName) AS LastNameUpper,
+       LOWER(Email) AS EmailLower,
+       LEFT(Phone, 4) AS PhoneCode,
+       RIGHT(Phone, 2) AS PhoneLastTwo,
+       REPLACE(Phone, '+7', '8') AS PhoneLocalFormat,
+       LEN(Email) AS EmailLength,
+       CHARINDEX('@', Email) AS AtPosition
+FROM Customers;
+GO
+
+-- =====================================================
+-- ЗАПРОСЫ НА ПРИМЕНЕНИЕ ПЕРЕМЕННЫХ И УПРАВЛЯЮЩИХ КОНСТРУКЦИЙ (1 шт.)
+-- =====================================================
+
+-- Запрос 6.1. Поиск лодок с использованием переменных и IF
+-- SQL запрос:
+DECLARE @MinLength DECIMAL(5,2) = 4.5;
+DECLARE @MaxLength DECIMAL(5,2) = 6.0;
+
+IF @MinLength < @MaxLength
+BEGIN
+    SELECT ModelName, Length, Price
+    FROM Boats
+    WHERE Length BETWEEN @MinLength AND @MaxLength
+    ORDER BY Length;
+END
+ELSE
+BEGIN
+    PRINT 'Ошибка: минимальная длина больше максимальной';
+END
+GO
+
+-- =====================================================
+-- ХРАНИМЫЕ ПРОЦЕДУРЫ (2 шт.)
+-- =====================================================
+
+-- Запрос 7.1. Хранимая процедура: добавление нового заказа
+-- SQL запрос:
+CREATE OR ALTER PROCEDURE sp_PlaceOrder
+    @CustomerLastName NVARCHAR(50),
+    @BoatModel NVARCHAR(100),
+    @Quantity INT,
+    @DeliveryAddress NVARCHAR(200)
+AS
+BEGIN
+    DECLARE @CustomerID INT, @BoatID INT, @Price DECIMAL(12,2), @TotalAmount DECIMAL(12,2);
+    
+    -- Получаем ID клиента
+    SELECT @CustomerID = CustomerID FROM Customers WHERE LastName = @CustomerLastName;
+    
+    -- Получаем ID лодки и цену
+    SELECT @BoatID = BoatID, @Price = Price FROM Boats WHERE ModelName = @BoatModel;
+    
+    -- Проверяем наличие
+    IF @CustomerID IS NOT NULL AND @BoatID IS NOT NULL
+    BEGIN
+        SET @TotalAmount = @Price * @Quantity;
+        
+        INSERT INTO Orders (CustomerID, BoatID, Quantity, OrderDate, TotalAmount, Status, DeliveryAddress)
+        VALUES (@CustomerID, @BoatID, @Quantity, GETDATE(), @TotalAmount, 'В обработке', @DeliveryAddress);
+        
+        PRINT 'Заказ успешно оформлен на сумму ' + CAST(@TotalAmount AS NVARCHAR(20)) + ' руб.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'Ошибка: клиент или лодка не найдены';
+    END
+END;
+GO
+
+-- Запрос 7.2. Хранимая процедура: отчёт по продажам за период
+-- SQL запрос:
+CREATE OR ALTER PROCEDURE sp_SalesReport
+    @StartDate DATE,
+    @EndDate DATE
+AS
+BEGIN
+    SELECT 
+        b.ModelName,
+        bc.CategoryName,
+        COUNT(o.OrderID) AS OrdersCount,
+        SUM(o.Quantity) AS UnitsSold,
+        SUM(o.TotalAmount) AS Revenue,
+        AVG(o.TotalAmount) AS AvgOrderValue
+    FROM Orders o
+    INNER JOIN Boats b ON o.BoatID = b.BoatID
+    INNER JOIN BoatCategories bc ON b.CategoryID = bc.CategoryID
+    WHERE o.OrderDate BETWEEN @StartDate AND @EndDate
+    GROUP BY b.ModelName, bc.CategoryName
+    ORDER BY Revenue DESC;
+END;
+GO
+
+-- Примеры вызова процедур:
+-- EXEC sp_PlaceOrder 'Иванов', 'Solar 460', 1, 'Москва, ул. Лодочная, 20';
+-- EXEC sp_SalesReport '2025-01-01', '2025-04-30';
+GO
+
+-- =====================================================
+-- ТРИГГЕРЫ (3 шт.)
+-- =====================================================
+
+-- Запрос 8.1. Триггер на INSERT: проверка количества в наличии
+-- SQL запрос:
+CREATE OR ALTER TRIGGER trg_Order_CheckStock
+ON Orders
+INSTEAD OF INSERT
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM inserted i
+        INNER JOIN Boats b ON i.BoatID = b.BoatID
+        WHERE b.StockQuantity < i.Quantity
+    )
+    BEGIN
+        RAISERROR('Ошибка: недостаточно товара на складе!', 16, 1);
+        RETURN;
+    END
+    ELSE
+    BEGIN
+        INSERT INTO Orders (CustomerID, BoatID, OrderDate, Quantity, TotalAmount, Status, DeliveryAddress)
+        SELECT CustomerID, BoatID, OrderDate, Quantity, TotalAmount, Status, DeliveryAddress
+        FROM inserted;
+        
+        -- Уменьшаем количество на складе
+        UPDATE b
+        SET StockQuantity = b.StockQuantity - i.Quantity
+        FROM Boats b
+        INNER JOIN inserted i ON b.BoatID = i.BoatID;
+        
+        PRINT 'Заказ добавлен, остаток на складе обновлён';
+    END
+END;
+GO
+
+-- Запрос 8.2. Триггер на UPDATE: логирование изменения статуса заказа
+-- SQL запрос:
+-- Создаём таблицу для логов
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'OrderStatusLog')
+BEGIN
+    CREATE TABLE OrderStatusLog (
+        LogID INT IDENTITY(1,1) PRIMARY KEY,
+        OrderID INT,
+        OldStatus NVARCHAR(30),
+        NewStatus NVARCHAR(30),
+        ChangeDate DATETIME,
+        ChangedBy NVARCHAR(100)
+    );
+END;
+GO
+
+CREATE OR ALTER TRIGGER trg_Order_StatusChange
+ON Orders
+AFTER UPDATE
+AS
+BEGIN
+    IF UPDATE(Status)
+    BEGIN
+        INSERT INTO OrderStatusLog (OrderID, OldStatus, NewStatus, ChangeDate, ChangedBy)
+        SELECT 
+            i.OrderID,
+            d.Status,
+            i.Status,
+            GETDATE(),
+            SYSTEM_USER
+        FROM inserted i
+        INNER JOIN deleted d ON i.OrderID = d.OrderID
+        WHERE i.Status != d.Status;
+        
+        PRINT 'Изменение статуса зафиксировано';
+    END
+END;
+GO
+
+-- Запрос 8.3. Триггер на DELETE: запрет удаления клиентов с активными заказами
+-- SQL запрос:
+CREATE OR ALTER TRIGGER trg_Customer_DeleteCheck
+ON Customers
+INSTEAD OF DELETE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM deleted d
+        INNER JOIN Orders o ON d.CustomerID = o.CustomerID
+        WHERE o.Status IN ('В обработке', 'Оплачен')
+    )
+    BEGIN
+        RAISERROR('Нельзя удалить клиента с активными заказами!', 16, 1);
+        RETURN;
+    END
+    ELSE
+    BEGIN
+        DELETE FROM Customers WHERE CustomerID IN (SELECT CustomerID FROM deleted);
+        PRINT 'Клиент успешно удалён';
+    END
+END;
+GO
+
+-- =====================================================
+-- ПРЕДСТАВЛЕНИЕ (VIEW) (1 шт.)
+-- =====================================================
+
+-- Запрос 9.1. Представление: полная информация о заказах
+-- SQL запрос:
+CREATE OR ALTER VIEW vw_FullOrderInfo AS
+SELECT 
+    o.OrderID,
+    CONCAT(c.LastName, ' ', c.FirstName, ' ', ISNULL(c.MiddleName, '')) AS CustomerName,
+    c.Phone,
+    c.City,
+    b.ModelName AS BoatModel,
+    bc.CategoryName,
+    m.Name AS Manufacturer,
+    o.Quantity,
+    b.Price AS UnitPrice,
+    o.TotalAmount,
+    o.OrderDate,
+    o.Status,
+    o.DeliveryAddress,
+    DATEDIFF(DAY, o.OrderDate, GETDATE()) AS DaysSinceOrder
+FROM Orders o
+INNER JOIN Customers c ON o.CustomerID = c.CustomerID
+INNER JOIN Boats b ON o.BoatID = b.BoatID
+INNER JOIN BoatCategories bc ON b.CategoryID = bc.CategoryID
+INNER JOIN Manufacturers m ON b.ManufacturerID = m.ManufacturerID;
+GO
+
+-- Пример использования:
+SELECT * FROM vw_FullOrderInfo WHERE Status = 'Доставлен';
+GO
+
+-- =====================================================
+-- ОКОННЫЕ ФУНКЦИИ (1 шт.)
+-- =====================================================
+
+-- Запрос 10.1. Ранжирование клиентов по сумме покупок
+-- SQL запрос:
+SELECT 
+    c.CustomerID,
+    CONCAT(c.LastName, ' ', c.FirstName) AS CustomerName,
+    c.City,
+    COUNT(o.OrderID) AS OrderCount,
+    SUM(o.TotalAmount) AS TotalSpent,
+    RANK() OVER (ORDER BY SUM(o.TotalAmount) DESC) AS RankBySpent,
+    DENSE_RANK() OVER (ORDER BY SUM(o.TotalAmount) DESC) AS DenseRank,
+    ROW_NUMBER() OVER (ORDER BY SUM(o.TotalAmount) DESC) AS RowNum,
+    AVG(SUM(o.TotalAmount)) OVER () AS AvgSpentAll,
+    SUM(SUM(o.TotalAmount)) OVER () AS TotalRevenueAll,
+    SUM(o.TotalAmount) * 100.0 / SUM(SUM(o.TotalAmount)) OVER () AS PercentOfTotal
+FROM Customers c
+LEFT JOIN Orders o ON c.CustomerID = o.CustomerID
+GROUP BY c.CustomerID, c.LastName, c.FirstName, c.City
+ORDER BY TotalSpent DESC;
+GO
+
+-- =====================================================
+-- ДОПОЛНИТЕЛЬНЫЕ ЗАПРОСЫ (для достижения 30+)
+-- =====================================================
+
+-- Запрос 11.1. Обновление цен со скидкой
+-- SQL запрос:
+UPDATE Boats
+SET Price = Price * 0.95
+WHERE CategoryID = (SELECT CategoryID FROM BoatCategories WHERE CategoryName = 'Рыболовные лодки');
+PRINT 'Цены на рыболовные лодки снижены на 5%';
+GO
+
+-- Запрос 11.2. Поиск лодок по длине и мощности
+-- SQL запрос:
+SELECT ModelName, Length, EnginePower, Price
+FROM Boats
+WHERE Length > 5.0 AND EnginePower > 100
+ORDER BY Price;
+GO
+
+-- Запрос 11.3. EXISTS: клиенты, которые делали заказы
+-- SQL запрос:
+SELECT c.CustomerID, c.LastName, c.FirstName
+FROM Customers c
+WHERE EXISTS (
+    SELECT 1 FROM Orders o 
+    WHERE o.CustomerID = c.CustomerID
+);
+GO
+
+-- =====================================================
+-- ПРОВЕРКА КОЛИЧЕСТВА СТРОК В ТАБЛИЦАХ
+-- =====================================================
+SELECT 'BoatCategories' AS TableName, COUNT(*) AS RowsCount FROM BoatCategories
+UNION ALL SELECT 'Manufacturers', COUNT(*) FROM Manufacturers
+UNION ALL SELECT 'Boats', COUNT(*) FROM Boats
+UNION ALL SELECT 'Customers', COUNT(*) FROM Customers
+UNION ALL SELECT 'Orders', COUNT(*) FROM Orders;
+GO
+
+-- =====================================================
+-- ДЕМОНСТРАЦИОННЫЙ ОТЧЁТ: ИТОГИ ПРОДАЖ
+-- =====================================================
+SELECT 
+    'Общая выручка' AS Metric,
+    CAST(SUM(TotalAmount) AS NVARCHAR(50)) AS Value
+FROM Orders
+UNION ALL
+SELECT 'Количество заказов', CAST(COUNT(*) AS NVARCHAR(50)) FROM Orders
+UNION ALL
+SELECT 'Средний чек', CAST(ROUND(AVG(TotalAmount), 0) AS NVARCHAR(50)) FROM Orders
+UNION ALL
+SELECT 'Проданных лодок', CAST(SUM(Quantity) AS NVARCHAR(50)) FROM Orders
+UNION ALL
+SELECT 'Клиентов', CAST(COUNT(*) AS NVARCHAR(50)) FROM Customers;
+GO
