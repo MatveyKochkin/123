@@ -211,3 +211,46 @@ FROM vw_CustomerSummary
 WHERE TotalOrders > 0
 ORDER BY TotalSpent DESC
 LIMIT 10;
+
+
+
+-- Создаём представление с детальной информацией о заказах
+DROP VIEW IF EXISTS vw_SalesDetail;
+
+CREATE VIEW vw_SalesDetail AS
+SELECT
+    o.OrderID,
+    o.OrderDate,
+    DATE_FORMAT(o.OrderDate, '%Y-%m') AS OrderMonth,
+    DATE_FORMAT(o.OrderDate, '%Y') AS OrderYear,
+    DATE_FORMAT(o.OrderDate, '%M') AS OrderMonthName,
+    c.City AS CustomerCity,
+    bc.CategoryName,
+    m.Name AS Manufacturer,
+    m.Country AS ManufacturerCountry,
+    b.ModelName,
+    o.Quantity,
+    b.Price AS UnitPrice,
+    o.TotalAmount,
+    o.Status
+FROM Orders o
+INNER JOIN Customers c ON o.CustomerID = c.CustomerID
+INNER JOIN Boats b ON o.BoatID = b.BoatID
+INNER JOIN BoatCategories bc ON b.CategoryID = bc.CategoryID
+INNER JOIN Manufacturers m ON b.ManufacturerID = m.ManufacturerID;
+
+-- ЗАПРОС 2: Отчёт по продажам с группировкой по категориям и месяцам
+SELECT 
+    OrderMonth,
+    OrderMonthName,
+    OrderYear,
+    CategoryName,
+    COUNT(OrderID) AS OrdersCount,
+    SUM(Quantity) AS UnitsSold,
+    ROUND(SUM(TotalAmount), 2) AS Revenue,
+    ROUND(AVG(TotalAmount), 2) AS AvgOrderValue,
+    COUNT(DISTINCT Manufacturer) AS ManufacturersCount
+FROM vw_SalesDetail
+WHERE Status != 'Отменён'
+GROUP BY OrderMonth, OrderMonthName, OrderYear, CategoryName
+ORDER BY OrderYear DESC, OrderMonth DESC, Revenue DESC;
