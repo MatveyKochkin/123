@@ -1,0 +1,103 @@
+1
+
+DELIMITER //
+
+-- Процедура оформления заказа
+CREATE OR REPLACE PROCEDURE sp_PlaceOrder(
+    IN p_CustomerLastName VARCHAR(50),
+    IN p_BoatModel VARCHAR(100),
+    IN p_Quantity INT,
+    IN p_DeliveryAddress VARCHAR(200)
+)
+BEGIN
+    DECLARE v_CustomerID INT;
+    DECLARE v_BoatID INT;
+    DECLARE v_Price DECIMAL(12,2);
+    DECLARE v_TotalAmount DECIMAL(12,2);
+    
+    SELECT CustomerID INTO v_CustomerID FROM Customers WHERE LastName = p_CustomerLastName LIMIT 1;
+    SELECT BoatID, Price INTO v_BoatID, v_Price FROM Boats WHERE ModelName = p_BoatModel LIMIT 1;
+    
+    IF v_CustomerID IS NOT NULL AND v_BoatID IS NOT NULL THEN
+        SET v_TotalAmount = v_Price * p_Quantity;
+        
+        INSERT INTO Orders (CustomerID, BoatID, Quantity, OrderDate, TotalAmount, Status, DeliveryAddress)
+        VALUES (v_CustomerID, v_BoatID, p_Quantity, NOW(), v_TotalAmount, 'В обработке', p_DeliveryAddress);
+        
+        SELECT 'Заказ успешно оформлен!' AS Message;
+    ELSE
+        SELECT 'Ошибка: клиент или лодка не найдены' AS ErrorMessage;
+    END IF;
+END //
+
+DELIMITER ;
+
+-- Пример вызова
+CALL sp_PlaceOrder('Иванов', 'Fishing 1700', 1, 'Москва, ул. Лодочная, 15');
+
+2
+
+SELECT 
+    b.ModelName,
+    bc.CategoryName,
+    COUNT(o.OrderID) AS OrdersCount,
+    SUM(o.Quantity) AS UnitsSold,
+    SUM(o.TotalAmount) AS Revenue,
+    ROUND(AVG(o.TotalAmount), 2) AS AvgOrderValue
+FROM Orders o
+INNER JOIN Boats b ON o.BoatID = b.BoatID
+INNER JOIN BoatCategories bc ON b.CategoryID = bc.CategoryID
+WHERE o.OrderDate BETWEEN '2025-01-01' AND '2025-04-30'
+GROUP BY b.ModelName, bc.CategoryName
+ORDER BY Revenue DESC;
+
+
+
+
+
+
+
+
+инс
+DELIMITER //
+
+CREATE TRIGGER trg_order_before_insert
+BEFORE INSERT ON Orders
+FOR EACH ROW
+BEGIN
+    DECLARE v_Stock INT;
+    
+    -- Получаем остаток на складе
+    SELECT StockQuantity INTO v_Stock FROM Boats WHERE BoatID = NEW.BoatID;
+    
+    -- Проверяем, достаточно ли товара
+    IF v_Stock < NEW.Quantity THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Ошибка: недостаточно товара на складе!';
+    END IF;
+END //
+
+DELIMITER ;
+
+
+дел
+DELIMITER //
+
+CREATE TRIGGER trg_customer_before_delete
+BEFORE DELETE ON Customers
+FOR EACH ROW
+BEGIN
+    DECLARE v_ActiveOrders INT;
+    
+    -- Проверяем наличие активных заказов
+    SELECT COUNT(*) INTO v_ActiveOrders 
+    FROM Orders 
+    WHERE CustomerID = OLD.CustomerID AND Status IN ('В обработке', 'Оплачен');
+    
+    IF v_ActiveOrders > 0 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Нельзя удалить клиента с активными заказами!';
+    END IF;
+END //
+
+DELIMITER ;
