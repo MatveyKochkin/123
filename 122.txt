@@ -149,3 +149,26 @@ END //
 
 -- Возвращаем стандартный разделитель
 DELIMITER ;
+
+
+CREATE OR REPLACE VIEW vw_FullOrderInfo AS
+SELECT
+    o.OrderID,
+    CONCAT(c.LastName, ' ', c.FirstName, ' ', IFNULL(c.MiddleName, '')) AS CustomerName,
+    c.Phone,
+    c.City,
+    b.ModelName AS BoatModel,
+    bc.CategoryName,
+    m.Name AS Manufacturer,
+    o.Quantity,
+    b.Price AS UnitPrice,
+    o.TotalAmount,
+    o.OrderDate,
+    o.Status,
+    o.DeliveryAddress,
+    DATEDIFF(CURDATE(), o.OrderDate) AS DaysSinceOrder
+FROM Orders o
+INNER JOIN Customers c ON o.CustomerID = c.CustomerID
+INNER JOIN Boats b ON o.BoatID = b.BoatID
+INNER JOIN BoatCategories bc ON b.CategoryID = bc.CategoryID
+INNER JOIN Manufacturers m ON b.ManufacturerID = m.ManufacturerID;
