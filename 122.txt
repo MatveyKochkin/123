@@ -101,3 +101,27 @@ BEGIN
 END //
 
 DELIMITER ;
+
+дел
+
+DELIMITER //
+
+CREATE TRIGGER trg_Customer_DeleteCheck
+BEFORE DELETE ON Customers
+FOR EACH ROW
+BEGIN
+    DECLARE v_ActiveOrders INT;
+    
+    -- Проверяем наличие активных заказов у клиента
+    SELECT COUNT(*) INTO v_ActiveOrders 
+    FROM Orders 
+    WHERE CustomerID = OLD.CustomerID AND Status IN ('В обработке', 'Оплачен');
+    
+    -- Если есть активные заказы, запрещаем удаление
+    IF v_ActiveOrders > 0 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Нельзя удалить клиента с активными заказами!';
+    END IF;
+END //
+
+DELIMITER ;
