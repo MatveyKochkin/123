@@ -125,3 +125,27 @@ BEGIN
 END //
 
 DELIMITER ;
+
+
+ап
+-- Удаляем старый триггер, если существует
+DROP TRIGGER IF EXISTS trg_Order_StatusUpdate;
+
+-- Меняем разделитель
+DELIMITER //
+
+-- Создаём триггер
+CREATE TRIGGER trg_Order_StatusUpdate
+AFTER UPDATE ON Orders
+FOR EACH ROW
+BEGIN
+    -- Проверяем, изменился ли статус заказа
+    IF OLD.Status != NEW.Status THEN
+        -- Вставляем запись в лог изменений
+        INSERT INTO OrderStatusLog (OrderID, OldStatus, NewStatus, ChangeDate, ChangedBy)
+        VALUES (NEW.OrderID, OLD.Status, NEW.Status, NOW(), USER());
+    END IF;
+END //
+
+-- Возвращаем стандартный разделитель
+DELIMITER ;
