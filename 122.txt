@@ -172,3 +172,42 @@ INNER JOIN Customers c ON o.CustomerID = c.CustomerID
 INNER JOIN Boats b ON o.BoatID = b.BoatID
 INNER JOIN BoatCategories bc ON b.CategoryID = bc.CategoryID
 INNER JOIN Manufacturers m ON b.ManufacturerID = m.ManufacturerID;
+
+
+
+
+-- Создаём представление с итогами по клиентам (если ещё не создано)
+DROP VIEW IF EXISTS vw_CustomerSummary;
+
+CREATE VIEW vw_CustomerSummary AS
+SELECT
+    c.CustomerID,
+    CONCAT(c.LastName, ' ', c.FirstName, ' ', IFNULL(c.MiddleName, '')) AS CustomerName,
+    c.City,
+    c.Phone,
+    c.Email,
+    c.RegistrationDate,
+    COUNT(o.OrderID) AS TotalOrders,
+    SUM(o.Quantity) AS TotalBoatsPurchased,
+    SUM(o.TotalAmount) AS TotalSpent,
+    ROUND(AVG(o.TotalAmount), 2) AS AvgOrderValue,
+    MIN(o.OrderDate) AS FirstOrderDate,
+    MAX(o.OrderDate) AS LastOrderDate,
+    DATEDIFF(CURDATE(), MAX(o.OrderDate)) AS DaysSinceLastOrder
+FROM Customers c
+LEFT JOIN Orders o ON c.CustomerID = o.CustomerID
+GROUP BY c.CustomerID, c.LastName, c.FirstName, c.MiddleName, c.City, c.Phone, c.Email, c.RegistrationDate;
+
+-- ЗАПРОС 1: Топ-10 клиентов по сумме покупок
+SELECT 
+    CustomerName,
+    City,
+    TotalOrders,
+    TotalBoatsPurchased,
+    TotalSpent,
+    AvgOrderValue,
+    DaysSinceLastOrder
+FROM vw_CustomerSummary
+WHERE TotalOrders > 0
+ORDER BY TotalSpent DESC
+LIMIT 10;
