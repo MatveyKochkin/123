@@ -1,256 +1,61 @@
-1
+-- =====================================================
+-- База данных: интернет-магазин лодок "ООО Капитан"
+-- СУБД: MySQL
+-- =====================================================
 
-DELIMITER //
+-- 1. Таблица: Категории лодок
+CREATE TABLE BoatCategories (
+    CategoryID INT AUTO_INCREMENT PRIMARY KEY,
+    CategoryName VARCHAR(50) NOT NULL UNIQUE,
+    Description VARCHAR(200)
+);
 
--- Процедура оформления заказа
-CREATE OR REPLACE PROCEDURE sp_PlaceOrder(
-    IN p_CustomerLastName VARCHAR(50),
-    IN p_BoatModel VARCHAR(100),
-    IN p_Quantity INT,
-    IN p_DeliveryAddress VARCHAR(200)
-)
-BEGIN
-    DECLARE v_CustomerID INT;
-    DECLARE v_BoatID INT;
-    DECLARE v_Price DECIMAL(12,2);
-    DECLARE v_TotalAmount DECIMAL(12,2);
-    
-    SELECT CustomerID INTO v_CustomerID FROM Customers WHERE LastName = p_CustomerLastName LIMIT 1;
-    SELECT BoatID, Price INTO v_BoatID, v_Price FROM Boats WHERE ModelName = p_BoatModel LIMIT 1;
-    
-    IF v_CustomerID IS NOT NULL AND v_BoatID IS NOT NULL THEN
-        SET v_TotalAmount = v_Price * p_Quantity;
-        
-        INSERT INTO Orders (CustomerID, BoatID, Quantity, OrderDate, TotalAmount, Status, DeliveryAddress)
-        VALUES (v_CustomerID, v_BoatID, p_Quantity, NOW(), v_TotalAmount, 'В обработке', p_DeliveryAddress);
-        
-        SELECT 'Заказ успешно оформлен!' AS Message;
-    ELSE
-        SELECT 'Ошибка: клиент или лодка не найдены' AS ErrorMessage;
-    END IF;
-END //
+-- 2. Таблица: Производители лодок
+CREATE TABLE Manufacturers (
+    ManufacturerID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL UNIQUE,
+    Country VARCHAR(50),
+    Website VARCHAR(100)
+);
 
-DELIMITER ;
+-- 3. Таблица: Лодки
+CREATE TABLE Boats (
+    BoatID INT AUTO_INCREMENT PRIMARY KEY,
+    ModelName VARCHAR(100) NOT NULL,
+    CategoryID INT NOT NULL,
+    ManufacturerID INT NOT NULL,
+    Length DECIMAL(5,2),
+    Width DECIMAL(4,2),
+    MaxPassengers INT,
+    EnginePower INT,
+    Price DECIMAL(12,2) NOT NULL,
+    StockQuantity INT NOT NULL DEFAULT 0,
+    FOREIGN KEY (CategoryID) REFERENCES BoatCategories(CategoryID),
+    FOREIGN KEY (ManufacturerID) REFERENCES Manufacturers(ManufacturerID)
+);
 
--- Пример вызова
-CALL sp_PlaceOrder('Иванов', 'Fishing 1700', 1, 'Москва, ул. Лодочная, 15');
+-- 4. Таблица: Клиенты
+CREATE TABLE Customers (
+    CustomerID INT AUTO_INCREMENT PRIMARY KEY,
+    LastName VARCHAR(50) NOT NULL,
+    FirstName VARCHAR(50) NOT NULL,
+    MiddleName VARCHAR(50),
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    Phone VARCHAR(20) NOT NULL,
+    City VARCHAR(50),
+    RegistrationDate DATE NOT NULL DEFAULT (CURRENT_DATE)
+);
 
-2
-
-SELECT 
-    b.ModelName,
-    bc.CategoryName,
-    COUNT(o.OrderID) AS OrdersCount,
-    SUM(o.Quantity) AS UnitsSold,
-    SUM(o.TotalAmount) AS Revenue,
-    ROUND(AVG(o.TotalAmount), 2) AS AvgOrderValue
-FROM Orders o
-INNER JOIN Boats b ON o.BoatID = b.BoatID
-INNER JOIN BoatCategories bc ON b.CategoryID = bc.CategoryID
-WHERE o.OrderDate BETWEEN '2025-01-01' AND '2025-04-30'
-GROUP BY b.ModelName, bc.CategoryName
-ORDER BY Revenue DESC;
-
-
-
-
-
-
-
-
-инс
-DELIMITER //
-
-CREATE TRIGGER trg_order_before_insert
-BEFORE INSERT ON Orders
-FOR EACH ROW
-BEGIN
-    DECLARE v_Stock INT;
-    
-    -- Получаем остаток на складе
-    SELECT StockQuantity INTO v_Stock FROM Boats WHERE BoatID = NEW.BoatID;
-    
-    -- Проверяем, достаточно ли товара
-    IF v_Stock < NEW.Quantity THEN
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'Ошибка: недостаточно товара на складе!';
-    END IF;
-END //
-
-DELIMITER ;
-
-
-дел
-DELIMITER //
-
-CREATE TRIGGER trg_customer_before_delete
-BEFORE DELETE ON Customers
-FOR EACH ROW
-BEGIN
-    DECLARE v_ActiveOrders INT;
-    
-    -- Проверяем наличие активных заказов
-    SELECT COUNT(*) INTO v_ActiveOrders 
-    FROM Orders 
-    WHERE CustomerID = OLD.CustomerID AND Status IN ('В обработке', 'Оплачен');
-    
-    IF v_ActiveOrders > 0 THEN
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'Нельзя удалить клиента с активными заказами!';
-    END IF;
-END //
-
-DELIMITER ;
-
-дел
-
-DELIMITER //
-
-CREATE TRIGGER trg_Customer_DeleteCheck
-BEFORE DELETE ON Customers
-FOR EACH ROW
-BEGIN
-    DECLARE v_ActiveOrders INT;
-    
-    -- Проверяем наличие активных заказов у клиента
-    SELECT COUNT(*) INTO v_ActiveOrders 
-    FROM Orders 
-    WHERE CustomerID = OLD.CustomerID AND Status IN ('В обработке', 'Оплачен');
-    
-    -- Если есть активные заказы, запрещаем удаление
-    IF v_ActiveOrders > 0 THEN
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'Нельзя удалить клиента с активными заказами!';
-    END IF;
-END //
-
-DELIMITER ;
-
-
-ап
--- Удаляем старый триггер, если существует
-DROP TRIGGER IF EXISTS trg_Order_StatusUpdate;
-
--- Меняем разделитель
-DELIMITER //
-
--- Создаём триггер
-CREATE TRIGGER trg_Order_StatusUpdate
-AFTER UPDATE ON Orders
-FOR EACH ROW
-BEGIN
-    -- Проверяем, изменился ли статус заказа
-    IF OLD.Status != NEW.Status THEN
-        -- Вставляем запись в лог изменений
-        INSERT INTO OrderStatusLog (OrderID, OldStatus, NewStatus, ChangeDate, ChangedBy)
-        VALUES (NEW.OrderID, OLD.Status, NEW.Status, NOW(), USER());
-    END IF;
-END //
-
--- Возвращаем стандартный разделитель
-DELIMITER ;
-
-
-CREATE OR REPLACE VIEW vw_FullOrderInfo AS
-SELECT
-    o.OrderID,
-    CONCAT(c.LastName, ' ', c.FirstName, ' ', IFNULL(c.MiddleName, '')) AS CustomerName,
-    c.Phone,
-    c.City,
-    b.ModelName AS BoatModel,
-    bc.CategoryName,
-    m.Name AS Manufacturer,
-    o.Quantity,
-    b.Price AS UnitPrice,
-    o.TotalAmount,
-    o.OrderDate,
-    o.Status,
-    o.DeliveryAddress,
-    DATEDIFF(CURDATE(), o.OrderDate) AS DaysSinceOrder
-FROM Orders o
-INNER JOIN Customers c ON o.CustomerID = c.CustomerID
-INNER JOIN Boats b ON o.BoatID = b.BoatID
-INNER JOIN BoatCategories bc ON b.CategoryID = bc.CategoryID
-INNER JOIN Manufacturers m ON b.ManufacturerID = m.ManufacturerID;
-
-
-
-
--- Создаём представление с итогами по клиентам (если ещё не создано)
-DROP VIEW IF EXISTS vw_CustomerSummary;
-
-CREATE VIEW vw_CustomerSummary AS
-SELECT
-    c.CustomerID,
-    CONCAT(c.LastName, ' ', c.FirstName, ' ', IFNULL(c.MiddleName, '')) AS CustomerName,
-    c.City,
-    c.Phone,
-    c.Email,
-    c.RegistrationDate,
-    COUNT(o.OrderID) AS TotalOrders,
-    SUM(o.Quantity) AS TotalBoatsPurchased,
-    SUM(o.TotalAmount) AS TotalSpent,
-    ROUND(AVG(o.TotalAmount), 2) AS AvgOrderValue,
-    MIN(o.OrderDate) AS FirstOrderDate,
-    MAX(o.OrderDate) AS LastOrderDate,
-    DATEDIFF(CURDATE(), MAX(o.OrderDate)) AS DaysSinceLastOrder
-FROM Customers c
-LEFT JOIN Orders o ON c.CustomerID = o.CustomerID
-GROUP BY c.CustomerID, c.LastName, c.FirstName, c.MiddleName, c.City, c.Phone, c.Email, c.RegistrationDate;
-
--- ЗАПРОС 1: Топ-10 клиентов по сумме покупок
-SELECT 
-    CustomerName,
-    City,
-    TotalOrders,
-    TotalBoatsPurchased,
-    TotalSpent,
-    AvgOrderValue,
-    DaysSinceLastOrder
-FROM vw_CustomerSummary
-WHERE TotalOrders > 0
-ORDER BY TotalSpent DESC
-LIMIT 10;
-
-
-
--- Создаём представление с детальной информацией о заказах
-DROP VIEW IF EXISTS vw_SalesDetail;
-
-CREATE VIEW vw_SalesDetail AS
-SELECT
-    o.OrderID,
-    o.OrderDate,
-    DATE_FORMAT(o.OrderDate, '%Y-%m') AS OrderMonth,
-    DATE_FORMAT(o.OrderDate, '%Y') AS OrderYear,
-    DATE_FORMAT(o.OrderDate, '%M') AS OrderMonthName,
-    c.City AS CustomerCity,
-    bc.CategoryName,
-    m.Name AS Manufacturer,
-    m.Country AS ManufacturerCountry,
-    b.ModelName,
-    o.Quantity,
-    b.Price AS UnitPrice,
-    o.TotalAmount,
-    o.Status
-FROM Orders o
-INNER JOIN Customers c ON o.CustomerID = c.CustomerID
-INNER JOIN Boats b ON o.BoatID = b.BoatID
-INNER JOIN BoatCategories bc ON b.CategoryID = bc.CategoryID
-INNER JOIN Manufacturers m ON b.ManufacturerID = m.ManufacturerID;
-
--- ЗАПРОС 2: Отчёт по продажам с группировкой по категориям и месяцам
-SELECT 
-    OrderMonth,
-    OrderMonthName,
-    OrderYear,
-    CategoryName,
-    COUNT(OrderID) AS OrdersCount,
-    SUM(Quantity) AS UnitsSold,
-    ROUND(SUM(TotalAmount), 2) AS Revenue,
-    ROUND(AVG(TotalAmount), 2) AS AvgOrderValue,
-    COUNT(DISTINCT Manufacturer) AS ManufacturersCount
-FROM vw_SalesDetail
-WHERE Status != 'Отменён'
-GROUP BY OrderMonth, OrderMonthName, OrderYear, CategoryName
-ORDER BY OrderYear DESC, OrderMonth DESC, Revenue DESC;
+-- 5. Таблица: Заказы (ИСПРАВЛЕННАЯ)
+CREATE TABLE Orders (
+    OrderID INT AUTO_INCREMENT PRIMARY KEY,
+    CustomerID INT NOT NULL,
+    BoatID INT NOT NULL,
+    OrderDate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    Quantity INT NOT NULL DEFAULT 1,
+    TotalAmount DECIMAL(12,2) NOT NULL,
+    Status VARCHAR(30) NOT NULL DEFAULT 'В обработке',
+    DeliveryAddress VARCHAR(200),
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
+    FOREIGN KEY (BoatID) REFERENCES Boats(BoatID)
+);
